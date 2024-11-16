@@ -6,21 +6,17 @@
         <i class="bi bi-plus"></i> @lang('Add Task')
     </button>
 
-    <ul class="list-group" class="todoList">
-        @foreach ($todos as $todo)
-            <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ $todo->id }}">
-                <span>{{ __($todo->task) }}</span>
-                <div class="task-actions">
-                    <button class="btn btn-warning btn-sm editBtn" data-task="{{ __($todo->task) }}" data-id="{{ $todo->id }}">
-                        @lang('Edit')
-                    </button>
-                    <button class="btn btn-danger btn-sm deleteBtn" data-id="{{ $todo->id }}">
-                        @lang('Delete')
-                    </button>
-                </div>
-            </li>
-        @endforeach
-    </ul>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>@lang('Task')</th>
+                <th>@lang('Actions')</th>
+            </tr>
+        </thead>
+        <tbody class="task-table-body">
+            @include('todo-list')
+        </tbody>
+    </table>
 
     <div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm">
@@ -36,6 +32,9 @@
                         <div class="mb-3">
                             <label for="task" class="form-label">@lang('Task')</label>
                             <input type="text" class="form-control form-control-sm" id="task" name="task" required>
+                            @error('task')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <button type="submit" class="btn btn-primary btn-sm w-100">@lang('Save Task')</button>
                     </form>
@@ -50,36 +49,35 @@
                 var $modal = $('.modal');
                 var $form = $modal.find('form');
 
-
-                $('.add-btn').on('click', function() {
+                $('.add-btn').on('click', function(e) {
                     const action = "{{ route('todo.store') }}";
                     $modal.find('.modal-title').text('@lang('Add New Task')');
-                    $form.trigger('reset');
                     $modal.find('form').attr('action', action);
+                    $form.trigger('reset');
                     $modal.modal('show');
                 });
 
                 $form.submit(function(e) {
                     e.preventDefault();
-
                     const formData = new FormData($(this)[0])
                     const task = $('#task').val();
                     const taskId = $('#taskId').val();
-
                     var url = $(this).attr('action');
                     $.ajax({
                         url: url,
-                        method: 'POST',
+                        type: 'POST',
                         data: formData,
                         dataType: "JSON",
                         processData: false,
                         contentType: false,
                         success: function(response) {
-                            getTaskList();
-                            $modal.modal('hide');
-                        },
-                        error: function(error) {
-                            console.log(error);
+
+                            if (response.success) {
+                                getTaskList();
+                                $modal.modal('hide');
+                            } else {
+                                alert(response.message);
+                            }
                         }
                     });
                 });
@@ -87,21 +85,21 @@
                 $('body').on('click', '.editBtn', function() {
                     var taskId = $(this).data('id');
                     var taskText = $(this).data('task');
-                    var action = "{{ route('todo.update', ':id') }}".replace(':id', taskId);
-                    $('#taskForm').attr('action', action);
+                    const action = "{{ route('todo.update', ':id') }}";
+                    $modal.find('.modal-title').text("@lang('Edit Brand')");
+                    $modal.find('form').attr('action', action.replace(":id", taskId));
                     $('#taskId').val(taskId);
                     $('#task').val(taskText);
-                    $('#taskModalLabel').text('@lang('Edit Task')');
+                    $modal.find('[name="name"]').val(task.name);
+                    $modal.find(`button[type=submit]`).text("@lang('Edit Brand')")
                     $('#taskModal').modal('show');
                 });
 
                 $('body').on('click', '.deleteBtn', function(e) {
                     e.preventDefault();
-
                     var taskId = $(this).data('id');
                     if (confirm('@lang('Are you sure you want to delete this task?')')) {
                         var deleteUrl = "{{ route('todo.destroy', ':id') }}".replace(':id', taskId);
-
                         $.ajax({
                             url: deleteUrl,
                             type: 'GET',
@@ -109,6 +107,7 @@
                                 var message = response.message || ('@lang('Task deleted successfully!')');
                                 alert(message);
                                 $('li[data-id="' + taskId + '"]').remove();
+                                getTaskList();
                             },
                             error: function(xhr, status, error) {
                                 alert('@lang('An error occurred while deleting the task.')');
@@ -118,16 +117,14 @@
                 });
 
                 function getTaskList() {
+                    var tableBody = $('.task-table-body');
                     $.ajax({
                         url: "{{ route('todo.index') }}",
-                        method: 'GET',
-                        dataType: 'html',
+                        type: 'GET',
                         success: function(response) {
-                            $('.todoList').html(response);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("Error fetching task list:", status, error);
-                            alert('Failed to update the task list.');
+                            if (response.success) {
+                                tableBody.html(response.html);
+                            }
                         }
                     });
                 }

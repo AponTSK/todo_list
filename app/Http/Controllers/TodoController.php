@@ -26,31 +26,6 @@ class TodoController extends Controller
         }
     }
 
-    // public function store(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'task' => 'required|string|max:255',
-    //     ], [
-    //         'task.required' => 'The task field cannot be empty. Please provide a task.',
-    //     ]);
-
-    //     if ($validator->fails())
-    //     {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Validation failed',
-    //             'errors' => $validator->errors()->all(),
-    //         ]);
-    //     }
-
-    //     $todo = new Todo;
-    //     $todo->task = $request->task;
-    //     $todo->save();
-    //     $todos = Todo::all();
-    //     $html = view('todo-list', compact('todos'))->render();
-    //     return response()->json(['message' => 'Task added successfully!', 'success' => true]);
-    // }
-
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -105,6 +80,6 @@ class TodoController extends Controller
     {
         $todo = Todo::findOrFail($id);
         $todo->delete();
-        return response()->json(['message' => 'Task deleted successfully!']);
+        return response()->json(['message' => 'Task deleted successfully!', 'success' => true]);
     }
 }

@@ -39,7 +39,7 @@
                         @csrf
                         <div class="mb-3">
                             <label for="task" class="form-label">@lang('Qoute')</label>
-                            <input type="text" class="form-control form-control-sm" id="quote" name="quote" required>
+                            <input type="text" class="form-control form-control-sm quote" name="quote" required>
                             @error('task')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -69,7 +69,7 @@
                 $form.submit(function(e) {
                     e.preventDefault();
                     const formData = new FormData($(this)[0])
-                    const quote = $('#quote').val();
+                    const quote = $('.quote').val();
                     var url = $(this).attr('action');
 
                     $.ajax({

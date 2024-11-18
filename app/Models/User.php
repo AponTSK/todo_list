@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     /**
@@ -87,15 +88,17 @@ class User extends Authenticatable
             }
             else
             {
-                $existingLike->update(['like' => $like]);
+                $existingLike->like = $like;
+                $existingLike->save();
             }
         }
         else
         {
-            $this->likes()->create([
+            $newLike = new Like([
                 'quote_id' => $quoteId,
                 'like' => $like,
             ]);
+            $this->likes()->save($newLike);
         }
         return [
             'hasLiked' => $this->hasLiked($quoteId),

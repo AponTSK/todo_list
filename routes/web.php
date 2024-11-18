@@ -22,14 +22,4 @@ Route::middleware('auth')->group(function ()
     Route::post('posts/like-dislike', [QuoteController::class, 'likeDislike'])->name('quotes.like.dislike');
 });
 
-// Route::get('/dashboard', function ()
-// {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware(['auth', 'role:admin'])->group(function ()
-{
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-});
-
 require __DIR__ . '/auth.php';

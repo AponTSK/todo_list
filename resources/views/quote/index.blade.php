@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
@@ -18,7 +17,7 @@
                                 </tr>
                             </thead>
                             <tbody class="quote-list">
-                                @include('quotelist')
+                                @include('quote.list')
                             </tbody>
                         </table>
                     </div>
@@ -83,85 +82,74 @@
                             if (response.success) {
                                 getQuoteList();
                                 $modal.modal('hide');
-                            } else {
-                                alert(response.message);
                             }
+                            alert(response.message);
                         }
                     });
                 });
 
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
 
-                $('.like-box i').click(function() {
-                    var id = $(this).attr('data-quote-id');
-                    var boxObj = $(this).parent('div');
-                    var like = $(this).hasClass('like') ? 1 : 0;
+                $('.like-dislike').on("click",function() {
+                    var id = $(this).data('quote-id');
+                    var likeBoxElement=$(this).parent();
+                    var action=$(this).data('action');
+
 
                     $.ajax({
                         type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
                         url: "{{ route('quotes.like.dislike') }}",
                         data: {
-                            id: id,
-                            like: like
+                            id,
+                            action
                         },
-                        success: function(data) {
-                            if (data.success.hasLiked == true) {
-                                if ($(boxObj).find(".dislike").hasClass("fa-solid")) {
-                                    var dislikes = $(boxObj).find(".dislike-count").text();
-                                    $(boxObj).find(".dislike-count").text(parseInt(dislikes) - 1);
-                                }
+                        success: function(resp) {
+                            
+                            if(resp.success){
+                                var totalLike=parseInt(likeBoxElement.find('.like-count').text());
+                                var totalDisLike=parseInt(likeBoxElement.find('.dislike-count').text());
 
-                                $(boxObj).find(".like").removeClass("fa-regular").addClass("fa-solid");
-                                $(boxObj).find(".dislike").removeClass("fa-solid").addClass("fa-regular");
+                                    if(action == 'like'){
+                                        if(likeBoxElement.find('.like i').hasClass("has-like")){
+                                            likeBoxElement.find('.like-count').text(totalLike > 0 ? --totalLike : 0);
+                                            likeBoxElement.find('.like i').removeClass('text-success');
+                                            likeBoxElement.find('.like i').removeClass("has-like");
+                                        }else{
 
-                                var likes = $(boxObj).find(".like-count").text();
-                                $(boxObj).find(".like-count").text(parseInt(likes) + 1);
+                                            likeBoxElement.find('.like-count').text(++totalLike);
+                                            likeBoxElement.find('.like i').addClass('text-success');
+                                            
+                                            likeBoxElement.find('.dislike-count').text(totalDisLike > 0 ? --totalDisLike : 0);
+                                            likeBoxElement.find('.dislike i').removeClass('text-warning');
+                                            likeBoxElement.find('.like i').addClass("has-like");
+                                        }
+                                        
+                                    }else{ // if dislike
 
-                            } else if (data.success.hasDisliked == true) {
-                                if ($(boxObj).find(".like").hasClass("fa-solid")) {
-                                    var likes = $(boxObj).find(".like-count").text();
-                                    $(boxObj).find(".like-count").text(parseInt(likes) - 1);
-                                }
+                                        if(likeBoxElement.find('.dislike i').hasClass("has-dislike")){
+                                            likeBoxElement.find('.dislike-count').text(totalDisLike > 0 ? --totalDisLike : 0);
+                                            likeBoxElement.find('.dislike i').removeClass('text-warning');
+                                            likeBoxElement.find('.dislike i').removeClass("has-dislike");
+                                        }else{
 
-                                $(boxObj).find(".like").removeClass("fa-solid").addClass("fa-regular");
-                                $(boxObj).find(".dislike").removeClass("fa-regular").addClass("fa-solid");
-
-                                var dislikes = $(boxObj).find(".dislike-count").text();
-                                $(boxObj).find(".dislike-count").text(parseInt(dislikes) + 1);
-                            } else {
-                                if ($(boxObj).find(".dislike").hasClass("fa-solid")) {
-                                    var dislikes = $(boxObj).find(".dislike-count").text();
-                                    $(boxObj).find(".dislike-count").text(parseInt(dislikes) - 1);
-                                }
-
-                                if ($(boxObj).find(".like").hasClass("fa-solid")) {
-                                    var likes = $(boxObj).find(".like-count").text();
-                                    $(boxObj).find(".like-count").text(parseInt(likes) - 1);
-                                }
-
-                                $(boxObj).find(".like").removeClass("fa-solid").addClass("fa-regular");
-                                $(boxObj).find(".dislike").removeClass("fa-solid").addClass("fa-regular");
+                                            likeBoxElement.find('.dislike-count').text(++totalDisLike);
+                                            likeBoxElement.find('.dislike i').addClass('text-warning');
+                                            
+                                            likeBoxElement.find('.like-count').text(totalLike > 0 ? --totalLike : 0);
+                                            likeBoxElement.find('.like i').removeClass('text-success');
+                                            likeBoxElement.find('.dislike i').addClass("has-dislike");
+                                        }
+                                    }
                             }
+                            alert(resp.message);
                         }
                     });
 
                 });
 
-                function getQuoteList() {
-                    $.ajax({
-                        url: "{{ route('quotes.index') }}",
-                        type: 'GET',
-                        success: function(response) {
-                            if (response.success) {
-                                $('.quote-list').html(response.html);
-                            }
-                        }
-                    });
-                }
+            
 
             });
         </script>

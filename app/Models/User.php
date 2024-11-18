@@ -63,46 +63,5 @@ class User extends Authenticatable
         return $this->likes()->where('quote_id', $quoteId)->where('like', false)->exists();
     }
 
-    public function toggleLikeDislike($quoteId, $like)
-    {
-        $existingLike = $this->likes()->where('quote_id', $quoteId)->first();
-        $quote = Quote::find($quoteId);
-        $userId = Auth::id();
-
-        if ($quote->user_id == $userId)
-        {
-            return response()->json(['message' => 'You cannot like or dislike your own quote!']);
-        }
-
-
-        if ($existingLike)
-        {
-            if ($existingLike->like == $like)
-            {
-                $existingLike->delete();
-
-                return [
-                    'hasLiked' => false,
-                    'hasDisliked' => false
-                ];
-            }
-            else
-            {
-                $existingLike->like = $like;
-                $existingLike->save();
-            }
-        }
-        else
-        {
-            $newLike = new Like([
-                'quote_id' => $quoteId,
-                'like' => $like,
-            ]);
-            $this->likes()->save($newLike);
-        }
-        return [
-            'hasLiked' => $this->hasLiked($quoteId),
-            'hasDisliked' => $this->hasDisliked($quoteId)
-        ];
-    }
+ 
 }

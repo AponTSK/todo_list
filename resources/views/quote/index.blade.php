@@ -89,10 +89,10 @@
                 });
 
 
-                $('.like-dislike').on("click",function() {
+                $('.like-dislike').on("click", function() {
                     var id = $(this).data('quote-id');
-                    var likeBoxElement=$(this).parent();
-                    var action=$(this).data('action');
+                    var likeBoxElement = $(this).parent();
+                    var action = $(this).data('action');
 
 
                     $.ajax({
@@ -106,42 +106,45 @@
                             action
                         },
                         success: function(resp) {
-                            
-                            if(resp.success){
-                                var totalLike=parseInt(likeBoxElement.find('.like-count').text());
-                                var totalDisLike=parseInt(likeBoxElement.find('.dislike-count').text());
 
-                                    if(action == 'like'){
-                                        if(likeBoxElement.find('.like i').hasClass("has-like")){
-                                            likeBoxElement.find('.like-count').text(totalLike > 0 ? --totalLike : 0);
-                                            likeBoxElement.find('.like i').removeClass('text-success');
-                                            likeBoxElement.find('.like i').removeClass("has-like");
-                                        }else{
+                            if (resp.success) {
+                                var totalLike = parseInt(likeBoxElement.find('.like-count').text());
+                                var totalDisLike = parseInt(likeBoxElement.find('.dislike-count').text());
 
-                                            likeBoxElement.find('.like-count').text(++totalLike);
-                                            likeBoxElement.find('.like i').addClass('text-success');
-                                            
+                                if (action == 'like') {
+                                    if (likeBoxElement.find('.like i').hasClass("has-like")) {
+                                        likeBoxElement.find('.like-count').text(totalLike > 0 ? --totalLike : 0);
+                                        likeBoxElement.find('.like i').removeClass('text-success has-like');
+                                    } else {
+                                        likeBoxElement.find('.like-count').text(++totalLike);
+                                        likeBoxElement.find('.like i').addClass('text-success has-like');
+
+                                        if (likeBoxElement.find('.dislike i').hasClass("has-dislike")) {
                                             likeBoxElement.find('.dislike-count').text(totalDisLike > 0 ? --totalDisLike : 0);
-                                            likeBoxElement.find('.dislike i').removeClass('text-warning');
-                                            likeBoxElement.find('.like i').addClass("has-like");
+                                            likeBoxElement.find('.dislike i').removeClass('text-warning has-dislike');
                                         }
-                                        
-                                    }else{ // if dislike
 
-                                        if(likeBoxElement.find('.dislike i').hasClass("has-dislike")){
-                                            likeBoxElement.find('.dislike-count').text(totalDisLike > 0 ? --totalDisLike : 0);
-                                            likeBoxElement.find('.dislike i').removeClass('text-warning');
-                                            likeBoxElement.find('.dislike i').removeClass("has-dislike");
-                                        }else{
-
-                                            likeBoxElement.find('.dislike-count').text(++totalDisLike);
-                                            likeBoxElement.find('.dislike i').addClass('text-warning');
-                                            
-                                            likeBoxElement.find('.like-count').text(totalLike > 0 ? --totalLike : 0);
-                                            likeBoxElement.find('.like i').removeClass('text-success');
-                                            likeBoxElement.find('.dislike i').addClass("has-dislike");
-                                        }
                                     }
+
+                                } else {
+
+                                    if (likeBoxElement.find('.dislike i').hasClass("has-dislike")) {
+                                        likeBoxElement.find('.dislike-count').text(totalDisLike > 0 ? --totalDisLike : 0);
+                                        likeBoxElement.find('.dislike i').removeClass('text-warning has-dislike');
+                                        
+                                    } else {
+
+                                        likeBoxElement.find('.dislike-count').text(++totalDisLike);
+                                        likeBoxElement.find('.dislike i').addClass('text-warning has-dislike');
+
+                                        if (likeBoxElement.find('.like i').hasClass('has-like')) {
+                                            likeBoxElement.find('.like-count').text(totalLike > 0 ? --totalLike : 0);
+                                            likeBoxElement.find('.like i').removeClass('text-success has-like');
+                                            
+                                        }
+
+                                    }
+                                }
                             }
                             alert(resp.message);
                         }
@@ -149,7 +152,17 @@
 
                 });
 
-            
+                function getQuoteList() {
+                    $.ajax({
+                        url: "{{ route('quotes.index') }}",
+                        type: 'GET',
+                        success: function(response) {
+                            if (response.success) {
+                                $('.quote-list').html(response.html);
+                            }
+                        }
+                    });
+                }
 
             });
         </script>

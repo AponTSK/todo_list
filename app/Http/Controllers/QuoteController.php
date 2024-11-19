@@ -77,7 +77,6 @@ class QuoteController extends Controller
 
         $userId = Auth::id();
         
-        
 
         if ($quote->user_id == $userId)
         {
@@ -89,22 +88,32 @@ class QuoteController extends Controller
 
         if($request->action =='like'){
             if($existingLike){
-                $existingLike->delete();
-                return response()->json(['message' => 'Like remove successfully','success' => true]);
+                if($existingLike->user_id == $userId){
+                    $existingLike->delete();
+                    return response()->json(['message' => 'Like remove successfully','success' => true]);
+                }else {
+                    return response()->json(['message' => 'You can only remove your own like!', 'success' => false]);
+                }
+                
             }else{
                 $this->newLikeOrDislike($userId,$quote->id,1);
                 return response()->json(['message' => 'Like added successfully','success' => true]);
             }
         }else{
             if($existingDisLike){
-                $existingDisLike->delete();
-                return response()->json(['message' => 'DisLike remove successfully','success' => true]);
 
+                if($existingDisLike->user_id == $userId){
+                    $existingDisLike->delete();
+                    return response()->json(['message' => 'DisLike remove successfully','success' => true]);
+                }else {
+                    return response()->json(['message' => 'You can only remove your own dislike!', 'success' => false]);
+                }
             }else{
                 $this->newLikeOrDislike($userId,$quote->id,0);
                 return response()->json(['message' => 'DisLike added successfully','success' => true]);
             }
         }
+
     }
 
     private function newLikeOrDislike($userId,$quoteId, $isLike){

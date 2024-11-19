@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('quote_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->boolean('like'); // true for like, false for dislike
+            $table->boolean('like'); 
             $table->timestamps();
         });
     }
